@@ -161,7 +161,7 @@ class Backdoor:
             示例用法:
             - 调用 `setPostValue()` 方法来创建POST请求的参数字典。
         """
-        return {self.password: self.codeCmd}
+        self.post_data = {self.password: self.codeCmd}
 
     def setSystemCmd(self, cmd=""):
         """
@@ -197,6 +197,14 @@ class Backdoor:
             示例用法:
             - 调用 `setUrl(Url)` 方法来设置对象的 URL 属性。
         """
+        # 定义一个URL的正则表达式
+        url_pattern = r'^(https?|ftp)://[^\s/$.?#].[^\s]*$'
+
+        # 使用re.match()函数来检查URL是否匹配正则表达式
+        if not re.match(url_pattern, Url):
+            raise ValueError("错误的URL格式")
+
+        # 如果URL格式正确，将URL赋值给对象的属性
         self.Url = Url
 
     def setnetloc(self, netloc):
@@ -223,7 +231,7 @@ class Backdoor:
         except Exception as e:
             print("IP设置错误:", str(e))
 
-    def analyzeUrl(self):
+    def setanalyzeUrl(self):
         """
         分析URL，提取各个部分信息。
 
@@ -323,3 +331,23 @@ class Backdoor:
         urls = [
             f"{self.scheme}://{ip}{self.path}?{self.query}" for ip in self.all_IP]
         self.all_Url = urls
+
+    def setSystemCmd_PostValue(self, systemCmdValue: str) -> None:
+        """
+        设置系统命令并创建POST请求参数。
+
+        该方法用于设置系统命令，并根据设置的系统命令创建POST请求的参数。
+
+        Args:
+            systemCmdValue (str): 要设置的系统命令字符串。
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `setSystemCmd_PostValue(systemCmdValue)` 方法来设置系统命令和创建POST请求参数。
+        """
+        self.setSystemCmd(systemCmdValue)
+        self.setCodeCmd(self.systemCmd)
+        self.setPostValue()
