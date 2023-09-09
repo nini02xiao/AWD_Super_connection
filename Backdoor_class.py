@@ -28,7 +28,8 @@ class Backdoor:
             print("文件地址获取发生错误", str(e))
 
 # 这里对连接进行测试，成功将会保存该Url为模板
-# ls -al 测试木马文件目录，有返回值则木马有效
+# 支持参数密码如：?pass=qwer
+# 使用命令ls -al 测试木马文件目录，有返回值则木马有效
 # 超时时间默认两秒
 
     def testUrl(self, Url="", password="admin", automatic="y", timeoutvalue=2):
@@ -49,6 +50,8 @@ class Backdoor:
             if response.status_code == 200 and response.text:
                 print("连接成功")
                 # 这里可以切换自动检测，手动检测
+                # 还未开发该功能，后期实现。
+                # 相关控制参数automatic="y"为自动"n"为手动，默认为"y"自动
             else:
                 print("密码错误")
         # 错误响应
@@ -58,8 +61,7 @@ class Backdoor:
             else:
                 print("连接失败:", str(e))
 
-# 这里直接传入木马
-# 连接Url支持参数密码如：?pass=qwer
+# 这里对Url进行分割处理
 
     def analyzeUrl(self):
         if self.Url == "":
