@@ -293,29 +293,39 @@ class Backdoor:
         try:
             if value == '':
                 self.FileAddress = re.sub(r"\"", "", input("输入源地址： "))
+            else:
+                self.FileAddress = re.sub(r"\"", "", value)
         except Exception as e:
             print("文件地址获取发生错误", str(e))
 
-    def readAll_IP(self):
+    def readIPs(self):
         """
-        从文件中读取所有IP地址。
+        从文件中读取IP地址列表。
 
-        该方法用于从指定文件中读取所有IP地址，将它们存储在对象的属性 self.all_IP 中。
-
-        Args:
-            None
+        该方法打开指定文件并逐行读取其中的IP地址，然后将这些IP地址以列表的形式返回。
 
         Returns:
-            None
+            List[str]: 包含从文件中读取的IP地址的列表。
+
+        Raises:
+            FileNotFoundError: 如果指定的文件不存在。
+            IOError: 如果在读取文件时发生IO错误。
 
         Example:
             示例用法:
-            - 调用 `readAll_IP()` 方法来读取文件中的IP地址并存储在对象中。
+            - 调用 `readIPs()` 方法来读取文件中的IP地址列表。
         """
-        with open(self.FileAddress, mode="r", encoding="utf-8") as f:
-            self.all_IP = [line.strip() for line in f.readlines()]
+        try:
+            # 打开文件并逐行读取IP地址
+            with open(self.FileAddress, mode="r", encoding="utf-8") as f:
+                ip_addresses = [line.strip() for line in f.readlines()]
+            return ip_addresses
+        except FileNotFoundError:
+            raise FileNotFoundError(f"文件 '{self.FileAddress}' 不存在")
+        except IOError as e:
+            raise IOError(f"读取文件时发生IO错误: {str(e)}")
 
-    def spliceUrl(self):
+    def spliceUrls(self):
         """
         根据IP地址生成URL列表。
 
@@ -334,6 +344,33 @@ class Backdoor:
         urls = [
             f"{self.scheme}://{ip}{self.path}?{self.query}" for ip in self.all_IP]
         self.all_Url = urls
+
+    def splice_IP_Url(self, IP: str):
+        """
+        根据给定的IP地址，构建新的URL。
+
+        Args:
+            IP (str): 要用于替换域名部分的IP地址。
+
+        Returns:
+            str: 构建的新URL字符串。
+
+        Raises:
+            ValueError: 如果IP参数无效或为空字符串。
+
+        Example:
+            示例用法:
+            - 调用 `splice_IP_Url(IP)` 方法，传入要替换的IP地址。
+            - 方法将返回一个新的URL字符串，其中域名部分被替换为指定的IP地址。
+
+        """
+        # 验证IP地址参数是否有效
+        if not IP:
+            raise ValueError("IP参数不能为空字符串")
+
+        # 使用给定的IP地址替换域名部分，并保留其他URL组件
+        new_url = f"{self.scheme}://{IP}{self.path}?{self.query}"
+        return new_url
 
     def setSystemCmd_PostValue(self, systemCmdValue: str) -> None:
         """
@@ -354,3 +391,26 @@ class Backdoor:
         self.setSystemCmd(systemCmdValue)
         self.setCodeCmd(self.systemCmd)
         self.setPostValue()
+
+    def changeUrlFileName(self, new_file_name):
+        """
+        更改 URL 中的文件名。
+
+        Args:
+            new_file_name (str): 新的文件名。
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `changeFileName(new_file_name)` 方法来更改 URL 中的文件名。
+        """
+        # 使用文件名替换 URL 中的最后一个部分
+        parts = self.path.split("/")
+        parts[-1] = new_file_name
+        self.path = "/".join(parts)
+
+        # 重新构建 URL
+        new_url = f"{self.scheme}://{self.netloc}{self.path}?{self.query}"
+        self.Url = new_url

