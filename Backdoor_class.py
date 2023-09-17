@@ -270,6 +270,26 @@ class Backdoor:
             self.first_param_name = list(query_dict.keys())[0]
             self.first_param_value = query_dict[self.first_param_name][0]
 
+    def setSystemCmd_PostValue(self, systemCmdValue: str) -> None:
+        """
+        设置系统命令并创建POST请求参数。
+
+        该方法用于设置系统命令，并根据设置的系统命令创建POST请求的参数。
+
+        Args:
+            systemCmdValue (str): 要设置的系统命令字符串。
+
+        Returns:
+            None
+
+        Example:
+            示例用法:
+            - 调用 `setSystemCmd_PostValue(systemCmdValue)` 方法来设置系统命令和创建POST请求参数。
+        """
+        self.setSystemCmd(systemCmdValue)
+        self.setCodeCmd(self.systemCmd)
+        self.setPostValue()
+
     def getFileAddress(self, value=''):
         """
         将从文件中读取IP地址资产。
@@ -372,26 +392,6 @@ class Backdoor:
         new_url = f"{self.scheme}://{IP}{self.path}?{self.query}"
         return new_url
 
-    def setSystemCmd_PostValue(self, systemCmdValue: str) -> None:
-        """
-        设置系统命令并创建POST请求参数。
-
-        该方法用于设置系统命令，并根据设置的系统命令创建POST请求的参数。
-
-        Args:
-            systemCmdValue (str): 要设置的系统命令字符串。
-
-        Returns:
-            None
-
-        Example:
-            示例用法:
-            - 调用 `setSystemCmd_PostValue(systemCmdValue)` 方法来设置系统命令和创建POST请求参数。
-        """
-        self.setSystemCmd(systemCmdValue)
-        self.setCodeCmd(self.systemCmd)
-        self.setPostValue()
-
     def changeUrlFileName(self, new_file_name):
         """
         更改 URL 中的文件名。
@@ -410,7 +410,3 @@ class Backdoor:
         parts = self.path.split("/")
         parts[-1] = new_file_name
         self.path = "/".join(parts)
-
-        # 重新构建 URL
-        new_url = f"{self.scheme}://{self.netloc}{self.path}?{self.query}"
-        self.Url = new_url

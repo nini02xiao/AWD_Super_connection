@@ -9,6 +9,9 @@ class superTools:
         # 创建Backdoor类的实例
         self.backdoor = Backdoor_class.Backdoor()
 
+    def returnClassBkDr(self):
+        return self.backdoor
+
     def initialization(self, Url: str, password: str) -> None:
         """
         初始化 Backdoor 实例。
@@ -29,8 +32,6 @@ class superTools:
         self.backdoor.setUrl(Url)
         self.backdoor.setanalyzeUrl()
         self.backdoor.setPassword(password)
-        self.backdoor.printALLAttribute()
-        print("\n" * 3)
 
     def testUrl(self, timeoutValue: int = 2) -> None:
         """
@@ -118,7 +119,7 @@ class superTools:
 
         return urls  # 返回包含所有 IP 地址对应的 URL 的列表
 
-    def attackUrl(self, Url, codeCmd, password="", timeoutValue: int = 2):
+    def attackUrl(self, Url, codeCmd, timeoutValue: int = 2):
         try:
             self.backdoor.setCodeCmd(codeCmd)
             # 发送HTTP请求，设置连接超时为指定时间
