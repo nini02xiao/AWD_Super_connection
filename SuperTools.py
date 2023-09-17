@@ -5,8 +5,15 @@ import Backdoor_class
 
 
 class superTools:
-    def __init__(self):
-        # 创建Backdoor类的实例
+    # def __init__(self):
+    #     # 创建Backdoor类的实例
+    #     self.backdoor = Backdoor_class.Backdoor()
+
+    def touchhNweBackdoor(self):
+        # 后续创建反序列化创建模板
+        """
+        创建一个backerdoor在该类中
+        """
         self.backdoor = Backdoor_class.Backdoor()
 
     def returnClassBkDr(self):
